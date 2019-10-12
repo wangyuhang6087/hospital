@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+	<mapper namespace="com.zhiyou100.mapper.UserMapper" >
+	
+	<resultMap type="User" id="resultDortorSectionMap">
+		<id column="id" property="id"/>
+		<result column="user_name" property="user_name"/>
+		<result column="real_name" property="real_name"/>
+			
+		<association property="userRole" javaType="UserRole">
+			<result column="role_id" property="role_id"/>
+		</association>
+		
+		<association property="role" javaType="Role">
+			<result column="role_name" property="role_name"/>
+		</association>
+		
+	</resultMap>
+	<select id="findAllUser" parameterType="Map" resultMap="resultDortorSectionMap">
+		SELECT
+			u.id,
+			u.user_name,
+			u.real_name,
+			ur.role_id,
+			r.role_name
+		FROM
+			user u,
+			user_role ur,
+			role r	
+	<where>
+			u.id = ur.user_id and ur.role_id = r.role_num
+			<if test="keyword != null and keyword != '' ">
+			and	u.real_name like '%${keyword}%'
+			</if>
+		</where>
+	</select>
+		
+		<!-- 计数  -->
+	<select id="count" parameterType="Map" resultType="int">
+			SELECT COUNT(*) FROM user,user_role
+		<where>
+			user.id = user_role.user_id
+			<if test="keyword != null and keyword != '' ">
+			and	user.real_name like '%${keyword}%'
+			</if>
+		</where>
+	</select>
+	
+	 <update id="updateUser2" parameterType="Map">
+		UPDATE user_role  set
+		role_id = #{role_num}
+		where user_id = #{id} 
+	</update>
+	
+	 <update id="updateUser" parameterType="User">
+		UPDATE user  set
+		user_name = #{user_name},
+		password = #{password},
+		real_name = #{real_name},
+		email=#{email},
+		status=#{status}
+		where id = #{id} 
+	</update>
+	
+	<!-- 根据id查询一个用户  -->
+	<select id="selectOne" parameterType="int" resultType="User">
+		SELECT * FROM user  WHERE id = #{id}
+	</select>
+	<!-- 根据name查询一个用户的id  -->
+	<select id="findIdByUserName" parameterType="String" resultType="int">
+		SELECT id FROM user  WHERE user_name = #{value}
+	</select>
+		
+	 <update id="deleteUser" parameterType="int" >
+		update user set  status = 0 where id = #{id}
+	</update>
+
+<!-- 插入user表  -->	
+	 <insert id="insertUser" parameterType="User">
+		INSERT INTO user (
+		user_name,
+		password,
+		real_name,
+		email,
+		status
+		)
+		VALUES
+		(  #{user_name},#{password},#{real_name},
+			#{email},#{status}	)			
+	</insert>
+	<!-- 插入user_role表  -->	
+	 <insert id="insertUser2" parameterType="Map">
+		INSERT INTO user_role (
+		user_id,
+		role_id 
+		)
+		VALUES
+		(  #{id},#{role_num})			
+	</insert>	
+	
+	
+<!-- 批量删除user_role表格 -->
+<delete id="deleteMoreUser"  parameterType="List">
+		
+		DELETE  FROM user_role 
+		<where>
+			<if test="list != null and list.size > 0">
+				<!-- collection : 要遍历的集合  -->
+				user_id in 
+				<foreach collection="list"  item="id" open="("  close=")"  separator=",">
+					#{id}
+				</foreach>
+			</if>
+		</where>		
+	</delete>
+
+<!-- 批量删除user表格 -->
+<delete id="deleteMoreUser2"  parameterType="List">
+		
+		DELETE  FROM user 
+		<where>
+			<if test="list != null and list.size > 0">
+				<!-- collection : 要遍历的集合  -->
+				id in 
+				<foreach collection="list"  item="id" open="("  close=")"  separator=",">
+					#{id}
+				</foreach>
+			</if>
+		</where>		
+	</delete>
+</mapper>

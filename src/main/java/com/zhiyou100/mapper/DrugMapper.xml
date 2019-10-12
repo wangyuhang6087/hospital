@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zhiyou100.mapper.DrugMapper" >
+	
+	<select id="findAllDrug" parameterType="Map" resultType="Drug">
+				SELECT
+					drug_num,
+					drug_name,
+					drug_type,
+					simple_detail,
+					status,
+					surplus
+				FROM
+					drug
+		<where>
+			<if test="drug_name != null and drug_name != '' ">
+			  drug_name like '%${drug_name}%'
+			</if>
+			<if test="drug_type != null and drug_type != '' ">
+			  and drug_type = ${drug_type}
+			</if>
+		</where>
+	</select>
+	
+		<!-- 计数  -->
+	<select id="count" parameterType="Map" resultType="int">
+			SELECT COUNT(*) FROM drug
+		<where>
+			<if test="drug_name != null and drug_name != '' ">
+			  drug_name like '%${drug_name}%'
+			</if>
+			<if test="drug_type != null and drug_type != '' ">
+			  and drug_type = ${drug_type};
+			</if>
+		</where>
+	</select>
+	
+	<insert id="insertDrug" parameterType="Drug">
+		INSERT INTO drug (
+			drug_num,
+			purchas_price,
+			sale_price,
+			drug_name,
+			drug_url,
+			drug_type,
+			simple_detail,
+			prodeced_date,
+			quality_date,
+			expiration_date,
+			detail,
+			manufacture,
+			use_infor,
+			total_stock,
+			surplus,
+			noted
+		)
+		VALUES
+			(
+			#{drug_num},#{purchas_price},#{sale_price},#{drug_name},#{drug_url},
+			#{drug_type},#{simple_detail},#{prodeced_date},#{quality_date},
+			#{expiration_date},#{detail},#{manufacture},#{use_infor},#{total_stock},
+			#{surplus},#{noted}
+			)
+	</insert>
+		
+	
+	<select id="findDrugById" parameterType="String" resultType="Drug">
+		SELECT 
+			drug_num,
+		    drug_url,
+			purchas_price,
+			sale_price,
+			drug_name,
+			drug_type,
+			simple_detail,
+			prodeced_date,
+			quality_date,
+			expiration_date,
+			detail,
+			manufacture,
+			use_infor,
+			total_stock,
+			surplus,
+			noted
+		FROM
+			drug
+		WHERE
+			drug_num = #{value}
+	</select> 
+	
+			 
+	 <update id="updateDrug" parameterType="Drug">
+		UPDATE drug
+		set 
+		sale_price = #{sale_price},
+		drug_name = #{drug_name},
+		drug_url = #{drug_url},
+		drug_type=#{drug_type},
+		simple_detail=#{simple_detail},
+		prodeced_date = #{prodeced_date},
+		expiration_date = #{expiration_date},
+		quality_date = #{quality_date},
+		detail = #{detail},
+		manufacture = #{manufacture},
+		use_infor = #{use_infor},
+		total_stock =#{total_stock},
+		noted = #{noted}
+		where 
+		drug_num = #{drug_num}
+	</update>
+	
+	<!-- 批量删除 -->
+	<delete id="deleteMoreDrug"  parameterType="List">
+		DELETE  FROM drug 
+		<where>
+			<if test="list != null and list.size > 0">
+				<!-- collection : 要遍历的集合  -->
+				drug_num in 
+				<foreach collection="list"  item="id" open="("  close=")"  separator=",">
+					#{id}
+				</foreach>
+			</if>
+		</where>
+	</delete>
+	
+</mapper>

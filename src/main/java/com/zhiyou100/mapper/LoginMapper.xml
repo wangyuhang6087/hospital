@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 
+namespace : 类路径
+	与此映射文件关联的接口文件路径
+ -->
+<mapper namespace="com.zhiyou100.mapper.LoginMapper">
+	
+	<select id="findUserByLogin" parameterType="Map" resultType="User">
+		SELECT * FROM user WHERE user_name = #{username} AND password = #{password}
+	</select>
+	
+	<select id="selectPermission" parameterType="Map" resultType="Permission">
+		SELECT
+			id,
+			resource_name,
+			resource_url
+		FROM
+			permission
+		WHERE
+			id IN (
+				SELECT
+					permission_id
+				FROM
+					role_permission
+				WHERE
+					role_id = (
+						SELECT
+							role_id
+						FROM
+							user_role
+						WHERE
+							user_id = (
+								SELECT
+									id
+								FROM
+									USER
+								WHERE
+									user_name = #{username}
+								AND password = #{password}
+							)
+					)
+			)
+			AND status = 1
+	</select>
+</mapper>

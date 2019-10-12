@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zhiyou100.mapper.DoctorMapper" >
+	
+	<resultMap type="Doctor" id="resultDortorSectionMap">
+		<id column="id" property="id"/>
+		<result column="name" property="name"/>
+		<result column="studentName" property="studentName"/>
+		<result column="certificate_type" property="certificate_type"/>
+		<result column="ID_num" property="ID_num"/>
+		<result column="phone" property="phone"/>
+		<result column="special_plane" property="special_plane"/>
+		<result column="sex" property="sex"/>
+		<result column="age" property="age"/>
+		<result column="birther" property="birther"/>
+		<result column="email" property="email"/>
+		<result column="section_id" property="section_id"/>
+		<result column="education" property="education"/>
+		<result column="section_id" property="section_id"/>
+		<result column="noted" property="noted"/>
+		<result column="time" property="time"/>
+	
+		<association property="section" javaType="Section">
+			<id column="id1" property="id"/>
+			<result column="seccp_num" property="seccp_num"/>
+			<result column="secco_name" property="secco_name"/>
+		</association>
+	</resultMap>
+	<select id="findAllDoctor" parameterType="Map" resultMap="resultDortorSectionMap">
+	SELECT
+		d.id,
+		d.name,
+		d.certificate_type,
+		d.ID_num,
+		d.phone,
+		d.special_plane,
+		d.sex,
+		d.birther,
+		d.email,
+		d.section_id,
+		d.education,
+		d.noted,
+		d.time,
+		s.id,
+		s.seccp_num,
+		s.secco_name
+	FROM
+		doctor d,
+		section s
+	<where>
+				s.id=d.section_id 
+			<if test="keyword != null and keyword != '' ">
+			   and	d.name like '%${keyword}%'
+			</if>
+		</where>
+	</select>
+	
+		<!-- 计数  -->
+	<select id="count" parameterType="Map" resultType="int">
+			SELECT COUNT(*) FROM doctor,section
+		<where>
+			doctor.section_id=section.id 
+			<if test="keyword != null and keyword != '' ">
+			and	doctor.name like '%${keyword}%'
+			</if>
+		</where>
+	</select>
+	
+	<insert id="insertDoctor" parameterType="Doctor">
+		INSERT INTO doctor (
+		NAME,
+		certificate_type,
+		ID_num,
+		phone,
+		special_plane,
+		sex,
+		birther,
+		age,
+		email,
+		section_id,
+		education,
+		noted
+		)
+		VALUES
+		(
+			#{name},#{certificate_type},#{ID_num},
+			#{phone},#{special_plane},#{sex},#{birther},#{age},
+			#{email},#{section_id},#{education},#{noted}
+		)
+	</insert>
+	 
+	 <update id="updateDoctor" parameterType="Doctor">
+		UPDATE doctor
+		set name = #{name},
+		certificate_type = #{certificate_type},
+		ID_num = #{ID_num},
+		phone=#{phone},
+		special_plane=#{special_plane},
+		sex = #{sex},
+		birther = #{birther},
+		age = #{age},
+		email = #{email},
+		section_id = #{section_id},
+		education = #{education},
+		noted = #{noted}
+		where id = #{id} 
+	</update>
+	 	 
+	 
+<!-- 	批量删除 -->
+	<delete id="deleteMoreDoctor"  parameterType="List">
+		DELETE  FROM doctor 
+		<where>
+			<if test="list != null and list.size > 0">
+				<!-- collection : 要遍历的集合  -->
+				id in 
+				<foreach collection="list"  item="id" open="("  close=")"  separator=",">
+					#{id}
+				</foreach>
+			</if>
+		</where>
+	</delete>
+	<!-- 查一个  -->
+	<select id="selectOne" parameterType="int" resultType="Doctor">
+		SELECT * FROM doctor  WHERE id = #{id}
+	</select>
+
+
+<resultMap type="Doctor" id="resultDortorSectionMap11">
+		<id column="id" property="id"/>
+		<result column="name" property="name"/>
+		<result column="time" property="time"/>
+		
+		<association property="section" javaType="Section">
+			<result column="secco_name" property="secco_name"/>
+		</association>
+	</resultMap>
+	<select id="findDoctorByIds" parameterType="List" resultMap="resultDortorSectionMap11">
+				SELECT
+					d.id,
+					d.name,
+					d.time,
+					s.secco_name
+				FROM
+					doctor d,
+					section s
+		<where>
+				s.id=d.section_id 
+			<if test="list != null and list.size > 0">
+				<!-- collection : 要遍历的集合  -->
+				 and d.id in 
+				<foreach collection="list"  item="id" open="("  close=")"  separator=",">
+					#{id}
+				</foreach>
+			</if>
+		</where>
+	</select>	
+</mapper>

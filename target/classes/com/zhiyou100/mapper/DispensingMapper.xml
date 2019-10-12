@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zhiyou100.mapper.DispensingMapper" >
+		
+	<resultMap type="Dispensing" id="result111Map">
+		<id column="medical_record" property="medical_record"/>
+		
+		<association property="registrationInfor" javaType="RegistrationInfor">
+			<result column="name" property="name"/>
+			
+		</association>
+		
+		<association property="hospitalInfor" javaType="HospitalInfor">
+			<result column="caregiver" property="caregiver"/>
+		</association>
+		
+	</resultMap>
+	<select id="findAllDispensing" parameterType="Map" resultMap="result111Map">
+			select 
+				dis.medical_record,	
+				reg.name,
+				hi.caregiver	
+			from 
+			dispensing dis,
+			registration_infor reg,
+			hospital_infor hi
+			<where>
+				dis.medical_record = reg.medical_record
+				and reg.medical_record=hi.medical_record
+			<if test="medical_record != null and medical_record != '' ">
+			   and	reg.medical_record like '%${medical_record}%'
+			</if>
+			<if test="name != null and name != ''">
+				and	reg.name like '%${name}%'
+			</if>
+		</where>
+	</select>
+<!-- =======================计数============================== -->	
+<select id="count" parameterType="Map" resultType="int">	
+	     	select 
+				count(*)
+			from 
+			dispensing dis,
+			registration_infor reg,
+			hospital_infor hi
+			<where>
+				dis.medical_record = reg.medical_record
+				and reg.medical_record=hi.medical_record
+			<if test="medical_record != null and medical_record != '' ">
+			   and	reg.medical_record like '%${medical_record}%'
+			</if>
+			<if test="name != null and name != ''">
+				and	reg.name like '%${name}%'
+			</if>
+		</where>
+</select>
+	
+	<select id="findNameById"  parameterType="String" resultType="RegistrationInfor"  >
+		SELECT 
+			name
+		FROM 
+			registration_infor
+		WHERE 
+			medical_record = #{value}
+	</select>
+<!-- 查药  -->
+	<select id="checkDrug"  parameterType="String" resultType="int"  >
+		SELECT 
+			surplus
+		FROM 
+			drug
+		WHERE 
+			drug_num = #{value}
+	</select>
+<!-- 更新药物 -->
+	<update id="alterDrug" parameterType="Map" >
+		update 
+			drug
+		set
+			surplus = #{surplus}
+		where
+			drug_num = #{drug_num}		
+	</update>
+</mapper>

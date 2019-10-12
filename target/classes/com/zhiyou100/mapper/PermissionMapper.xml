@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zhiyou100.mapper.PermissionMapper" >
+
+	<select id="findAllPermission"  resultType="Permission">
+			select 
+				id,
+				resource_name,
+				resource_url,
+				status
+			from 
+				permission
+			<where>
+			<if test="resource_name != null and resource_name != '' ">
+			   and	resource_name like '%${resource_name}%'
+			</if>
+		</where>
+	</select>
+<!-- =======================计数============================== -->	
+<select id="count" parameterType="Map" resultType="int">	
+	     	select 
+				count(*)
+			from 
+				permission
+			<where>
+			<if test="resource_name != null and resource_name != '' ">
+			   and	resource_name like '%${resource_name}%'
+			</if>
+		</where>
+</select>
+	
+	<insert id="insertPermission" parameterType="Permission" >
+		insert into 
+			permission(resource_name,resource_url,status)
+		values(#{resource_name},#{resource_url},#{status})	
+	</insert> 
+	
+	<!-- 批量删除 -->
+	<delete id="deleteMorePermission"  parameterType="List">
+		DELETE  FROM permission 
+		<where>
+			<if test="list != null and list.size > 0">
+				<!-- collection : 要遍历的集合  -->
+				id in 
+				<foreach collection="list"  item="id" open="("  close=")"  separator=",">
+					#{id}
+				</foreach>
+			</if>
+		</where>
+	</delete>
+	
+	<update id="deletePermission"  parameterType="int">
+		UPDATE  permission
+			 SET  status = 0 
+		WHERE id = #{id}
+	</update>
+	
+	<select id="selectOne" parameterType="int" resultType="Permission">
+		SELECT 
+			id,
+			resource_name,
+			resource_url,
+			status
+		FROM
+			permission
+		WHERE
+			id = #{id}
+	</select> 
+	
+	<update id="updatePermission"  parameterType="Permission">
+		UPDATE  permission
+			SET resource_name=#{resource_name},
+			resource_url=#{resource_url},
+			status=#{status}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>	
+

@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zhiyou100.mapper.RegistrationInforMapper" >
+		
+	<resultMap type="RegistrationInfor" id="result111Map">
+		<id column="medical_record" property="medical_record"/>
+		<result column="time" property="time"/>
+		<result column="status" property="status"/>
+		
+		
+		<association property="section" javaType="Section">
+			<result column="secco_name" property="secco_name"/>
+		</association>
+		
+		<association property="doctor" javaType="Doctor">
+			<result column="name" property="name"/>
+		</association>
+		
+	</resultMap>
+	<select id="findAllRegistrationInfor" parameterType="Map" resultMap="result111Map">
+			SELECT
+				reg.medical_record,
+				d. name,
+				reg.time,
+				s.secco_name,
+				reg.status
+			FROM
+				registration_infor reg,
+				section s,
+				doctor d
+	<where>
+				reg.doctor_id = d.id 
+				AND reg.section_id = s.seccp_num
+			<if test="medical_record != null and medical_record != '' ">
+			   and	reg.medical_record like '%${medical_record}%'
+			</if>
+			<if test="doctor_name != null and doctor_name != ''">
+				and	d. name like '%${doctor_name}%'
+			</if>
+			<if test="secco_name != null and secco_name != ''">
+				and	s.secco_name like '%${secco_name}%'
+			</if>	
+			<if test="startTime != null and startTime != ''">
+				and  #{startTime}  &lt;  reg.time
+			</if>	
+			<if test="endTime != null and endTime != ''">
+				and	 reg.time  &lt;  #{endTime}
+			</if>	
+			
+		</where>
+	</select>
+	
+<select id="count" parameterType="Map" resultType="int">	
+	        SELECT
+				count(*)
+			FROM
+				registration_infor reg,
+				section s,
+				doctor d
+	<where>
+				reg.doctor_id = d.id 
+				AND reg.section_id = s.seccp_num
+			<if test="medical_record != null and medical_record != '' ">
+			   and	reg.medical_record like '%${medical_record}%'
+			</if>
+			<if test="doctor_name != null and doctor_name != '' ">
+				and	d. name like '%${doctor_name}%'
+			</if>
+			<if test="secco_name != null and secco_name != '' ">
+				and	s.secco_name like '%${secco_name}%'
+			</if>	
+			<if test="startTime != null and startTime != ''">
+				and  #{startTime}  &lt;  reg.time
+			</if>	
+			<if test="endTime != null and endTime != ''">
+				and	 reg.time  &lt;  #{endTime}
+			</if>	
+		</where>
+	</select>
+	
+	<insert id="insertRegistrationInfor" parameterType="RegistrationInfor">
+		INSERT INTO registration_infor (
+			medical_record,
+			NAME,
+			certificate_type,
+			ID_num,
+			social_safe_num,
+			registration_fee,
+			phone,
+			self_paying,
+			sex,
+			age,
+			career,
+			early_appointment,
+			section_id,
+			doctor_id,
+			STATUS,
+			noted
+		)
+		VALUES
+			(
+			#{medical_record},#{name},#{certificate_type},
+			#{ID_num},#{social_safe_num},#{registration_fee},
+			#{phone},#{self_paying},#{sex},#{age},#{career},#{early_appointment},
+			#{section_id},#{doctor_id},#{status},#{noted}
+			)
+
+
+	</insert>
+
+	<select id="findOne" parameterType="String" resultType="RegistrationInfor">
+		SELECT * FROM registration_infor  WHERE medical_record = #{value}
+	</select> 
+		
+	<!-- 批量删除 -->
+	<delete id="deleteMoreRegistrationInfor"  parameterType="List">
+		DELETE  FROM registration_infor 
+		<where>
+			<if test="list != null and list.size > 0">
+				<!-- collection : 要遍历的集合  -->
+				medical_record in 
+				<foreach collection="list"  item="id" open="("  close=")"  separator=",">
+					#{id}
+				</foreach>
+			</if>
+		</where>
+	</delete>
+	
+	<!--  查一个详情   -->	
+		<resultMap type="RegistrationInfor" id="result222Map">
+		<id column="id" property="id"/>
+		<result column="reg_name" property="name"/>
+		
+		<result column="ID_num" property="ID_num"/>
+		<result column="registration_fee" property="registration_fee"/>
+		<result column="phone" property="phone"/>
+		<result column="self_paying" property="self_paying"/>
+		<result column="sex" property="sex"/>
+		<result column="age" property="age"/>
+		<result column="career" property="career"/>		
+		<result column="social_safe_num" property="social_safe_num"/>		
+		<result column="early_appointment" property="early_appointment"/>
+		<result column="noted" property="noted"/>
+		
+		<association property="certificateType" javaType="CertificateType">
+			<result column="ct_name" property="name"/>
+		</association>
+		
+		<association property="section" javaType="Section">
+			<result column="secco_name" property="secco_name"/>
+		</association>
+		
+		<association property="doctor" javaType="Doctor">
+			<result column="doctor_name" property="name"/>
+		</association>
+		
+	</resultMap>
+	<select id="selectOne" parameterType="String" resultMap="result222Map">
+			SELECT
+				reg.id,
+				reg.name reg_name,
+				ct. name ct_name,
+				reg.ID_num,
+				reg.social_safe_num,
+				reg.registration_fee ,
+				reg.phone,
+				reg.self_paying,
+				reg.sex,
+				reg.age,
+				reg.career,
+				reg.early_appointment,
+				s.secco_name ,
+				d.name doctor_name,
+				reg.doctor_id reg_doctor_id,
+				reg.noted
+			FROM
+				registration_infor reg,
+				doctor d,
+				certificate_type ct,
+				section s
+			WHERE
+				medical_record = #{value}
+			AND reg.certificate_type = ct.id
+			AND reg.doctor_id = d.id
+			AND reg.section_id = s.seccp_num
+	</select>
+		
+		 
+ <update id="updateRegistrationInfor" parameterType="RegistrationInfor">
+		UPDATE registration_infor
+		SET
+		name = #{name},
+		ID_num = #{ID_num},
+		registration_fee=#{registration_fee},
+		certificate_type=#{certificate_type},
+		social_safe_num=#{social_safe_num},
+		phone = #{phone},
+		self_paying = #{self_paying},
+		sex = #{sex},
+		age = #{age},
+		career = #{career},
+		early_appointment = #{early_appointment},
+		section_id = #{section_id},
+		doctor_id = #{doctor_id},
+		noted = #{noted}
+		where id = #{id} 
+	</update> 
+ <delete id="deleteRegistrationInfor" parameterType="String">
+	delete from registration_infor where  medical_record = #{value}
+</delete>
+		
+</mapper>

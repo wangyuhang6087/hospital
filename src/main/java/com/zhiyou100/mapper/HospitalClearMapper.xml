@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zhiyou100.mapper.HospitalClearMapper" >
+		
+	<resultMap type="HospitalClear" id="result111Map">
+		<id column="medical_record" property="medical_record"/>
+		<result column="clear_status" property="clear_status"/>
+		<result column="cash_pledge" property="cash_pledge"/>
+		
+		<association property="hospitalInfor" javaType="HospitalInfor">
+			<result column="bed_id" property="bed_id"/>
+			
+		</association>
+		
+		<association property="registrationInfor" javaType="RegistrationInfor">
+			<result column="reg_name" property="name"/>
+			<result column="phone" property="phone"/>
+			<result column="time" property="time"/>
+		</association>
+		
+		<association property="section" javaType="Section">
+			<result column="secco_name" property="secco_name"/>
+		</association>
+		
+		<association property="doctor" javaType="Doctor">
+			<result column="doctor_name" property="name"/>
+		</association>
+		
+	</resultMap>
+	<select id="findAllHospitalClear" parameterType="Map" resultMap="result111Map">
+				select  
+					hc.medical_record ,
+					reg.name reg_name,
+					hi.bed_id,
+					reg.phone,
+					hc.cash_pledge,
+					d.name doctor_name,
+					reg.time,
+					s.secco_name,
+					hc.clear_status	
+				from 
+					hospital_clear hc,
+					hospital_infor hi,
+					registration_infor reg,
+					doctor d,
+					section s
+	<where>
+				hc.medical_record = hi.medical_record 
+				and hi.medical_record=reg.medical_record
+				and  reg.doctor_id= d.id  
+				and d.section_id = s.seccp_num
+			<if test="medical_record != null and medical_record != '' ">
+			   and	reg.medical_record like '%${medical_record}%'
+			</if>
+			<if test="doctor_name != null and doctor_name != ''">
+				and	d. name like '%${doctor_name}%'
+			</if>
+			<if test="secco_name != null and secco_name != ''">
+				and	s.secco_name like '%${secco_name}%'
+			</if>	
+			<if test="startTime != null and startTime != ''">
+				and  #{startTime}  &lt;  reg.time
+			</if>	
+			<if test="endTime != null and endTime != ''">
+				and	 reg.time  &lt;  #{endTime}
+			</if>	
+		</where>
+	</select>
+<!-- =======================计数============================== -->	
+<select id="count" parameterType="Map" resultType="int">	
+	     		select  
+					count(*)
+				from 
+					hospital_clear hc,
+					hospital_infor hi,
+					registration_infor reg,
+					doctor d,
+					section s
+			<where>
+				hc.medical_record = hi.medical_record 
+				and hi.medical_record=reg.medical_record
+				and  reg.doctor_id= d.id  
+				and d.section_id = s.seccp_num
+			<if test="medical_record != null and medical_record != '' ">
+			   and	reg.medical_record like '%${medical_record}%'
+			</if>
+			<if test="doctor_name != null and doctor_name != ''">
+				and	d. name like '%${doctor_name}%'
+			</if>
+			<if test="secco_name != null and secco_name != ''">
+				and	s.secco_name like '%${secco_name}%'
+			</if>	
+			<if test="startTime != null and startTime != ''">
+				and  #{startTime}  &lt;  reg.time
+			</if>	
+			<if test="endTime != null and endTime != ''">
+				and	 reg.time  &lt;  #{endTime}
+			</if>	
+		</where>
+	</select>
+		
+	<!-- ============ 查一个详情   =================-->	
+		<resultMap type="RegistrationInfor" id="result222Map">
+		<id column="id" property="id"/>
+		<result column="medical_record" property="medical_record"/>
+		<result column="career" property="career"/>
+		<result column="reg_name" property="name"/>
+		<result column="ID_num" property="ID_num"/>
+		<result column="social_safe_num" property="social_safe_num"/>
+		<result column="phone" property="phone"/>
+		<result column="self_paying" property="self_paying"/>
+		<result column="sex" property="sex"/>
+		<result column="age" property="age"/>
+		<result column="career" property="career"/>			
+		<result column="early_appointment" property="early_appointment"/>
+		<result column="noted" property="noted"/>
+		
+		<association property="certificateType" javaType="CertificateType">
+			<result column="ct_name" property="name"/>
+		</association>
+		
+		<association property="section" javaType="Section">
+			<result column="secco_name" property="secco_name"/>
+		</association>
+		
+		<association property="doctor" javaType="Doctor">
+			<result column="doctor_name" property="name"/>
+		</association>
+		
+		<association property="hospitalInfor" javaType="HospitalInfor">
+			<result column="caregiver" property="caregiver"/>
+			<result column="bed_id" property="bed_id"/>
+			<result column="pay_the_deposit" property="pay_the_deposit"/>
+			<result column="state_illness" property="state_illness"/>
+		</association>
+	</resultMap>
+	<select id="selectOne" parameterType="String" resultMap="result222Map">
+			SELECT
+				reg.medical_record,
+				reg.career,
+				reg.id,
+				reg.name reg_name,
+				ct. name ct_name,
+				reg.ID_num,
+				reg.social_safe_num,
+				reg.phone,
+				reg.self_paying,
+				reg.sex,
+				reg.age,
+				reg.early_appointment,
+				s.secco_name ,
+				d.name doctor_name,
+				reg.noted,
+				hi.caregiver,
+				hi.bed_id,
+				hi.pay_the_deposit,
+				hi.state_illness
+			FROM
+				registration_infor reg,
+				doctor d,
+				certificate_type ct,
+				section s,
+				hospital_infor hi
+			WHERE
+				reg.medical_record  = #{value}
+			AND reg.medical_record =hi.medical_record
+			AND reg.certificate_type = ct.id
+			AND reg.doctor_id = d.id
+			AND reg.section_id = s.seccp_num
+	</select>
+	<!-- ============================================================== -->
+	
+	<!--  更新  -->
+			 
+ <update id="updateRegistrationInfor" parameterType="RegistrationInfor">
+		UPDATE registration_infor
+		SET
+		name = #{name},
+		certificate_type=#{certificate_type},
+		ID_num = #{ID_num},
+		social_safe_num=#{social_safe_num},
+		phone = #{phone},
+		self_paying = #{self_paying},
+		sex = #{sex},
+		age = #{age},
+		early_appointment = #{early_appointment},
+		section_id = #{section_id},
+		doctor_id = #{doctor_id},
+		noted = #{noted}
+		where medical_record = #{medical_record} 
+	</update> 
+	
+	<!-- ============更新2222222222222222222222222 -->
+	 <update id="updateHospitalInfor" parameterType="HospitalInfor">
+		UPDATE hospital_infor
+		SET
+		caregiver = #{caregiver},
+		bed_id = #{bed_id},
+		pay_the_deposit=#{pay_the_deposit},
+		state_illness=#{state_illness}
+		where medical_record = #{medical_record} 
+	</update> 
+
+	<!-- ==查找一个== -->
+	<select id="find" resultType="int" parameterType="String">
+		select count(*) from registration_infor where medical_record = #{value}
+	</select>
+	<!-- 插入=================== -->
+	<insert id="insertHospitalInfor" parameterType="HospitalInfor">
+		INSERT INTO hospital_infor
+		 (	medical_record,
+		 	caregiver,
+			bed_id,
+			pay_the_deposit,
+			state_illness)
+		VALUES
+			(#{medical_record},#{caregiver},
+			#{bed_id},#{pay_the_deposit},
+			#{state_illness})
+	</insert>
+	
+	<update id="deleteHospitalClear" parameterType="String">
+	update  hospital_clear set clear_status = '1'  where  medical_record = #{value}
+	</update>
+	
+	<!-- 批量删除 -->
+	<update id="deleteMoreHospitalClear"  parameterType="List">
+		UPDATE  hospital_clear set 
+			clear_status = '1'
+		<where>
+			<if test="list != null and list.size > 0">
+			<!-- 	collection : 要遍历的集合  -->
+				medical_record in 
+				<foreach collection="list"  item="id" open="("  close=")"  separator=",">
+					#{id}
+				</foreach>
+			</if>
+		</where>
+	</update>
+
+</mapper>
